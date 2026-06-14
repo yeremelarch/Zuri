@@ -36,9 +36,15 @@ use ReinfyTeam\Zuri\utils\TextUtil;
 
 class Language implements LanguagePath {
 	private Config $languageData;
+	private string $code;
 
 	public function __construct(string $path) {
+		$this->code = pathinfo($path, PATHINFO_FILENAME);
 		$this->languageData = new Config($path, Config::YAML);
+	}
+
+	public function getCode() : string {
+		return $this->code;
 	}
 
 	public function translate(string $key, array $replacements = []) : string {

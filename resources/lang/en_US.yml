@@ -1,5 +1,7 @@
 # Zuri English Translations
 
+prefix: "{AQUA}Water Sentinel{WHITE}"
+
 punishments:
   ban_message: "You have been banned for Unfair Advantage."
   kick_message: "You have been kicked for Unfair Advantage."

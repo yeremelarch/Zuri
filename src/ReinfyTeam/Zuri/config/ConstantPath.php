@@ -33,6 +33,7 @@ namespace ReinfyTeam\Zuri\config;
 
 interface ConstantPath {
 	public const CONSTANT_VERSION = "1.0.0";
+	public const CURRENT_CONSTANT_VERSION = "zuri.config-version";
 	public const FRICTION_FACTOR = "speed.friction_factor";
 	public const JUMP_FACTOR = "speed.jump_factor";
 	public const GROUND_FACTOR = "speed.ground_factor";

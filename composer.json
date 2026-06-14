@@ -21,7 +21,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Reinfyteam\\Zuri\\": "src/"
+            "ReinfyTeam\\Zuri\\": "src/"
         }
     },
 	"scripts": {

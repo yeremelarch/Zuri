@@ -32,6 +32,9 @@ declare(strict_types=1);
 namespace ReinfyTeam\Zuri\check\moving\speed;
 
 use ReinfyTeam\Zuri\check\Check;
+use ReinfyTeam\Zuri\config\ConstantPath;
+use ReinfyTeam\Zuri\player\ExternalDataPath;
+use ReinfyTeam\Zuri\utils\Utils;
 use function abs;
 
 
@@ -80,6 +83,8 @@ class SpeedA extends Check {
 	 * @return array{failed:bool,debug:array} Result array with `failed` and `debug` keys.
 	 */
 	public static function check(array $data) : array {
+		$failed = false;
+
 		if ($data["type"] === "PlayerAuthInputPacket") {
 			$playerData = $data["playerData"];
 			$constantData = $data["constantData"];
@@ -96,7 +101,7 @@ class SpeedA extends Check {
 				$playerData["airTicks"] > 40 ||
 				$playerData["isFlying"] ||
 				$playerData["hasNoClientPredictions"] ||
-				$playerData["isSurvival"] ||
+				!$playerData["isSurvival"] ||
 				$playerData["isCreative"] ||
 				$playerData["isSpectator"] ||
 				!$playerData["isCurrentChunkLoaded"] ||
@@ -106,7 +111,7 @@ class SpeedA extends Check {
 			}
 
 			$previous = $playerData["movement"]["from"];
-			$next = $playerData["movement"]["from"];
+			$next = $playerData["movement"]["to"];
 
 			$externalData = $playerData["externalData"];
 
@@ -117,7 +122,7 @@ class SpeedA extends Check {
 			$acceleration = $externalData[ExternalDataPath::ACCELERATION];
 
 			$expected = $momentum + $acceleration;
-			$expected += ($playerData["jumpTicks"] < 5 && $player["isBlockAbove"]) ? $constantData[ConstantPath::JUMP_FACTOR] : 0;
+			$expected += ($playerData["jumpTicks"] < 5 && $playerData["isBlockAbove"]) ? $constantData[ConstantPath::JUMP_FACTOR] : 0;
 			$expected += ($playerData["isOnGround"]) ? $constantData[ConstantPath::GROUND_FACTOR] : 0;
 			$expected += ($playerData["isStartedJumping"] && $playerData["lastMoveTick"] > 5) ? $constantData[ConstantPath::LAST_JUMP_FACTOR] : 0;
 			$expected += ($playerData["jumpTicks"] <= 20 && $playerData["isOnIce"]) ? $constantData[ConstantPath::ICE_FACTOR] : 0;
@@ -149,6 +154,6 @@ class SpeedA extends Check {
 			]);
 		}
 
-		return self::buildResult(false);
+		return self::buildResult($failed);
 	}
 }

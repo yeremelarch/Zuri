@@ -33,8 +33,10 @@ namespace ReinfyTeam\Zuri\config;
 
 use pocketmine\utils\Config;
 use ReinfyTeam\Zuri\ZuriAC;
+use ReinfyTeam\Zuri\utils\TextUtil;
 use function basename;
 use function copy;
+use function is_string;
 use function pathinfo;
 use function str_replace;
 use function unlink;
@@ -59,8 +61,6 @@ class ConfigManager implements ConfigPath {
 			$path,
 			Config::YAML
 		);
-
-		$this->checkVersion(self::CONFIG_VERSION);
 	}
 
 	/**
@@ -81,16 +81,17 @@ class ConfigManager implements ConfigPath {
 	/**
 	 * Ensures configuration version compatibility and replaces resource if outdated.
 	 */
-	public function checkVersion(string $version) : void {
-		if ($this->getData($version) !== null) {
-			if (version_compare($version, $this->getData(self::CONFIG_VERSION), '>=')) {
+	public function checkVersion(string $versionPath, string $expectedVersion) : void {
+		$currentVersion = $this->config->getNested($versionPath);
+
+		if (!is_string($currentVersion) || $currentVersion === '' || version_compare($currentVersion, $expectedVersion, '<')) {
 				@copy(
 					$this->path,
 					str_replace(pathinfo($this->path, PATHINFO_FILENAME), pathinfo($this->path, PATHINFO_FILENAME) . "-old", $this->path)
 				);
 				@unlink($this->path);
 				ZuriAC::getInstance()->saveResource(basename($this->path));
-			}
+				$this->config->reload();
 		}
 	}
 

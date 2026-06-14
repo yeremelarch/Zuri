@@ -111,7 +111,7 @@ abstract class Check {
 	 * `checks.{checkName}.{subType}.maxvl`.
 	 */
 	public function getPunishment() : string {
-		return ZuriAC::getConfigManager()->getData(ConfigPath::CHECKS . "." . strtolower($this->getName()) . "." . strtolower($this->getSubType()) . ".maxvl");
+		return (string) ZuriAC::getConfigManager()->getData(ConfigPath::CHECKS . "." . strtolower($this->getName()) . ".punishment", "kick");
 	}
 
 

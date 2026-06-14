@@ -52,7 +52,7 @@ class LanguageManager {
 	}
 
 	public function setCurrentLanguage(Language $currentLanguage) : void {
-		if ($this->isRegisteredLocale($currentLanguage->getCode())) {
+		if (!$this->isRegisteredLocale($currentLanguage->getCode())) {
 			throw new LanguageError("This language is not registered yet: " . $currentLanguage->getCode());
 		}
 		$this->currentLanguage = $currentLanguage;
@@ -73,6 +73,12 @@ class LanguageManager {
 				$language = new Language($resource->getPath());
 				$instance->registerLanguage($language);
 			}
+		}
+
+		if ($instance->isRegisteredLocale("en_US")) {
+			$instance->setCurrentLanguage($instance->getRegisteredLocale()["en_US"]);
+		} elseif ($instance->getRegisteredLocale() !== []) {
+			$instance->setCurrentLanguage(array_values($instance->getRegisteredLocale())[0]);
 		}
 		return $instance;
 	}

@@ -34,7 +34,9 @@ namespace ReinfyTeam\Zuri\check;
 use pocketmine\player\Player;
 use pocketmine\Server;
 use ReinfyTeam\Zuri\config\ConfigPath;
+use ReinfyTeam\Zuri\config\language\LanguagePath;
 use ReinfyTeam\Zuri\player\PlayerManager;
+use ReinfyTeam\Zuri\utils\Utils;
 use ReinfyTeam\Zuri\ZuriAC;
 use function max;
 use function min;
@@ -84,10 +86,9 @@ final class ResultsHandler {
 
 		$playerZuri = PlayerManager::get($player);
 
-		$reachedMaxPreViolations = $playerZuri->getPreViolation($check->getName()) > $check->getMaxPreViolation();
-		$reachedMaxViolations = $playerZuri->getViolation($check->getName()) > $check->getMaxViolation();
-
 		$playerZuri->addPreViolation($check->getName(), $threshold);
+		$reachedMaxPreViolations = $playerZuri->getPreViolation($check->getName()) >= $check->getMaxPreViolation();
+		$reachedMaxViolations = $playerZuri->getViolation($check->getName()) >= $check->getMaxViolation();
 
 		if ($reachedMaxPreViolations) {
 			$playerZuri->addViolation($check->getName(), $threshold);
@@ -116,7 +117,8 @@ final class ResultsHandler {
 	}
 
 	public static function nativeKick(Player $player) : void {
-		$player->kick(ZuriAC::getLanguageManager()->getCurrentLanguage()->translate(LanguagePath::KICK_MESSAGE));
+		$prefix = ZuriAC::getLanguageManager()->getCurrentLanguage()->translate(LanguagePath::PREFIX) . " ";
+		$player->kick($prefix . ZuriAC::getLanguageManager()->getCurrentLanguage()->translate(LanguagePath::KICK_MESSAGE));
 	}
 
 	public static function commandKick(Player $player) : void {
@@ -125,9 +127,17 @@ final class ResultsHandler {
 		]));
 	}
 
+	public static function commandBan(Player $player) : void {
+		Server::getInstance()->dispatchCommand(Server::getInstance()->getConsoleSender(), ZuriAC::getConfigManager()->getData(ConfigPath::PUNISHMENT_BAN_COMMAND, null, [
+			"{player}" => '"' . $player->getName() . '"'
+		]));
+	}
+
 	public static function nativeBan(Player $player) : void {
-		Server::getInstance()->getNameBans()->addBan($player->getName(), ZuriAC::getLanguageManager()->getCurrentLanguage()->translate(LanguagePath::PUNISHMENT_BAN_MESSAGE), Utils::parseToDateTime(ZuriAC::getConfigManager()->getData(ConfigPath::PUNISHMENT_BAN_DURATION)), null);
-		$player->kick(ZuriAC::getLanguageManager()->getCurrentLanguage()->translate(LanguagePath::PUNISHMENT_BAN_MESSAGE));
+		$prefix = ZuriAC::getLanguageManager()->getCurrentLanguage()->translate(LanguagePath::PREFIX) . " ";
+		$message = $prefix . ZuriAC::getLanguageManager()->getCurrentLanguage()->translate(LanguagePath::PUNISHMENT_BAN_MESSAGE);
+		Server::getInstance()->getNameBans()->addBan($player->getName(), $message, Utils::parseToDateTime(ZuriAC::getConfigManager()->getData(ConfigPath::PUNISHMENT_BAN_DURATION)), null);
+		$player->kick($message);
 	}
 
 	/**
@@ -138,8 +148,6 @@ final class ResultsHandler {
 	 */
 	public static function adjustThreshold(Player $player, Check $checkType) : float {
 		$multiplier = 1.0;
-
-		$server = Server::getInstance();
 
 		// Apply ping adjustment
 		$ping = $player->getNetworkSession()->getPing() ?? 0;
@@ -159,17 +167,15 @@ final class ResultsHandler {
 		$loadFactor = min(1.0, ($playerLoad * 0.4) + ($tpsLoad * 0.6));
 
 		// Apply load adjustment
-		$multiplier *= self::getLoadMultiplier($loadFactor, $checkType);
+		$multiplier *= self::getLoadMultiplier($loadFactor);
 
-		// Thresholds should only increase (more lenient), never decrease
-		return $baseThreshold * max(1.0, $multiplier);
+		return max(1.0, $multiplier);
 	}
 
 	/**
 	 * Calculate a multiplier based on player ping.
 	 */
 	public static function getPingMultiplier(int $ping, Check $checkType) : float {
-		// Movement checks are more sensitive to ping
 		$sensitivity = ZuriAC::getConfigManager()->getData(ConfigPath::THRESHOLDS_PING . strtolower($checkType->getName()), ZuriAC::getConfigManager()->getData(ConfigPath::THRESHOLD_PING_DEFAULT_MULTIPLIER, 1.0));
 
 		return match (true) {
@@ -189,7 +195,6 @@ final class ResultsHandler {
 	 * @param float $loadFactor Value in [0,1] describing normalized server load.
 	 */
 	public static function getLoadMultiplier(float $loadFactor) : float {
-		// Load affects all checks roughly equally
 		return match (true) {
 			$loadFactor < 0.3 => 1.0,
 			$loadFactor < 0.5 => 1.05,
@@ -205,8 +210,6 @@ final class ResultsHandler {
 	 * @param float $tps Current server ticks per second.
 	 */
 	public static function getTpsMultiplier(float $tps, Check $checkType) : float {
-		// Timer checks are most sensitive to TPS fluctuation
-
 		$sensitivity = ZuriAC::getConfigManager()->getData(ConfigPath::THRESHOLDS_TPS . strtolower($checkType->getName()), ZuriAC::getConfigManager()->getData(ConfigPath::THRESHOLD_TPS_DEFAULT_MULTIPLIER, 1.0));
 
 		return match (true) {

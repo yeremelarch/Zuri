@@ -33,6 +33,7 @@ namespace ReinfyTeam\Zuri\check;
 
 use pocketmine\player\Player;
 use ReinfyTeam\Zuri\check\moving\speed\SpeedA;
+use ReinfyTeam\Zuri\check\moving\speed\SpeedB;
 use ReinfyTeam\Zuri\ZuriAC;
 use function array_filter;
 
@@ -110,7 +111,8 @@ class CheckRegistry {
 	 */
 	public static function loadChecks() : self {
 		return new self([
-			new SpeedA()
+			new SpeedA(),
+			new SpeedB()
 		]);
 	}
 }

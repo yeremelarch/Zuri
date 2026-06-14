@@ -35,6 +35,7 @@ use pocketmine\utils\SingletonTrait;
 use ReinfyTeam\Zuri\check\CheckRegistry;
 use ReinfyTeam\Zuri\check\CheckWorker;
 use ReinfyTeam\Zuri\config\ConfigManager;
+use ReinfyTeam\Zuri\config\ConfigPath;
 use ReinfyTeam\Zuri\config\ConstantValues;
 use ReinfyTeam\Zuri\config\language\LanguageManager;
 
@@ -63,7 +64,9 @@ class ZuriAC extends Loader {
 		self::checkRunningSource();
 
 		self::$config = new ConfigManager(ZuriAC::getInstance()->getDataFolder() . "config.yml");
+		self::$config->checkVersion(ConfigPath::CURRENT_CONFIG_VERSION, ConfigPath::CONFIG_VERSION);
 		self::$constants = new ConstantValues(ZuriAC::getInstance()->getDataFolder() . "constants.yml");
+		self::$languageManager = LanguageManager::loadLanguage();
 	}
 
 	/**

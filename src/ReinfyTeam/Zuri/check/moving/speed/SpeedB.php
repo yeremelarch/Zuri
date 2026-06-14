@@ -32,6 +32,7 @@ declare(strict_types=1);
 namespace ReinfyTeam\Zuri\check\moving\speed;
 
 use ReinfyTeam\Zuri\check\Check;
+
 use function abs;
 
 
@@ -82,7 +83,6 @@ class SpeedB extends Check {
 	public static function check(array $data) : array {
 		if ($data["type"] === "PlayerMoveEvent") {
 			$playerData = $data["playerData"];
-			$constantData = $data["constantData"];
 
 			$movement = $playerData["movement"];
 			$movementX = abs($movement["to"]["x"] - $movement["from"]["x"]);
@@ -98,7 +98,7 @@ class SpeedB extends Check {
 			}
 
 			if (
-				$playerData["isSurvival"] ||
+				!$playerData["isSurvival"] ||
 				$playerData["attackTicks"] < 40 ||
 				$playerData["projectileAttackTicks"] < 20 ||
 				$playerData["bowShotTicks"] < 20 ||
@@ -110,7 +110,7 @@ class SpeedB extends Check {
 				$playerData["isOnAdhesion"] ||
 				!$playerData["isOnGround"] ||
 				$playerData["isFlying"] ||
-				$playerData["getAllowFlight"] ||
+				$playerData["allowFlight"] ||
 				$playerData["hasNoClientPredictions"] ||
 				!$playerData["isCurrentChunkLoaded"] ||
 				$playerData["isGroundSolid"] ||
@@ -120,5 +120,7 @@ class SpeedB extends Check {
 				return self::buildResult(false);
 			}
 		}
+
+		return self::buildResult(false);
 	}
 }

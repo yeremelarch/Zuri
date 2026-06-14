@@ -36,6 +36,7 @@ use pocketmine\entity\effect\VanillaEffects;
 use pocketmine\item\enchantment\VanillaEnchantments;
 use pocketmine\math\Vector2;
 use pocketmine\math\Vector3;
+use pocketmine\player\Player;
 use function max;
 use function min;
 

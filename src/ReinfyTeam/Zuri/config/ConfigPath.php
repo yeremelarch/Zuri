@@ -47,5 +47,10 @@ interface ConfigPath {
 	public const CHECKS = "zuri.checks";
 
 	public const PUNISHMENT_BAN_DURATION = "zuri.punishment.ban.duration";
+	public const PUNISHMENT_BAN_TYPE = "zuri.punishment.ban.type";
+	public const PUNISHMENT_BAN_COMMAND = "zuri.punishment.ban.command";
+	public const PUNISHMENT_BAN_MESSAGE = "zuri.punishment.ban.message";
+	public const PUNISHMENT_KICK_TYPE = "zuri.punishment.kick.type";
+	public const PUNISHMENT_KICK_COMMAND = "zuri.punishment.kick.command";
 	
 }

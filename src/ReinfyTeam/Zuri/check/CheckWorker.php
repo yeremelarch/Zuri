@@ -46,12 +46,13 @@ use function min;
  * Handles queuing and batching of checks for asynchronous processing.
  */
 class CheckWorker {
+	private int $maxWorkers;
+
 	/**
 	 * @param int $maxWorkers Maximum number of worker batches allowed.
 	 */
-	public function __construct(
-		private readonly int $maxWorkers
-	) {
+	public function __construct(int $maxWorkers) {
+		$this->maxWorkers = $maxWorkers;
 		// NO-OP
 	}
 
@@ -92,14 +93,15 @@ class CheckWorker {
 	 */
 	public function drain() : array {
 		$queueSize = $this->getSize();
+		$batchSize = max(1, $this->getBatchSize());
 
-		$possibleWorkers = intdiv($queueSize, $this->getBatchSize());
+		$possibleWorkers = intdiv($queueSize, $batchSize);
 		$workers = min($possibleWorkers, $this->maxWorkers);
 
 		$batches = [];
 
 		for ($i = 0; $i < $workers; $i++) {
-			$batches[] = array_splice($this->queue, 0, $this->getBatchSize());
+			$batches[] = array_splice($this->queue, 0, $batchSize);
 		}
 		return $batches;
 	}
@@ -127,7 +129,7 @@ class CheckWorker {
 	 * @return bool True if ready, false otherwise.
 	 */
 	public function isReady() : bool {
-		return $this->getSize() !== 0 && $this->getSize() >= $this->getBatchSize();
+		return $this->getSize() !== 0 && $this->getSize() >= max(1, $this->getBatchSize());
 	}
 
 
@@ -137,9 +139,10 @@ class CheckWorker {
 	 * @return int Batch size (number of checks per batch).
 	 */
 	public function getBatchSize() : int {
-		// maybe this is the hard limit for batch size, as we don't want to run too many checks at once, but we also don't want to run too few checks at once, as it would be inefficient.
-		// (TODO) This is just a random number that I came up with, but it should be fine for most servers. We can always adjust this later if needed.
-		return (count(Server::getInstance()->getOnlinePlayers()) * count(ZuriAC::getCheckRegistry()->getChecks())) * 8;
+		$players = count(Server::getInstance()->getOnlinePlayers());
+		$checks = count(ZuriAC::getCheckRegistry()->getChecks());
+
+		return max(1, $players * $checks * 8);
 	}
 
 	/**

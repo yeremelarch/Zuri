@@ -32,6 +32,7 @@ declare(strict_types=1);
 namespace ReinfyTeam\Zuri\player;
 
 use pocketmine\player\Player;
+use function strtolower;
 
 
 /**
@@ -45,7 +46,7 @@ class PlayerManager {
 	 * Returns the PlayerZuri for a given Player, creating it if necessary.
 	 */
 	public static function get(Player $player) : PlayerZuri {
-		$playerZuri = self::$players[$player->getName()] ??= PlayerZuri::create($player);
+		$playerZuri = self::$players[self::getKey($player)] ??= PlayerZuri::create($player);
 		$playerZuri->updateData($player);
 
 		return $playerZuri;
@@ -55,13 +56,17 @@ class PlayerManager {
 	 * Adds a new PlayerZuri for a player.
 	 */
 	public static function add(Player $player) : void {
-		self::$players[$player->getName()] = PlayerZuri::create($player);
+		self::$players[self::getKey($player)] = PlayerZuri::create($player);
 	}
 
 	/**
 	 * Removes a PlayerZuri for a player.
 	 */
 	public static function remove(Player $player) : void {
-		unset(self::$players[$player->getName()]);
+		unset(self::$players[self::getKey($player)]);
+	}
+
+	private static function getKey(Player $player) : string {
+		return strtolower($player->getName());
 	}
 }

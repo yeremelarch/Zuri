@@ -35,7 +35,7 @@ class ConstantValues extends ConfigManager implements ConstantPath {
 	public function __construct(string $path) {
 		parent::__construct($path);
 
-		$this->checkVersion(self::CONSTANT_VERSION);
+		$this->checkVersion(self::CURRENT_CONSTANT_VERSION, self::CONSTANT_VERSION);
 	}
 
 	public function getConstant(string $key, mixed $default = null) : mixed {

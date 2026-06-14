@@ -70,7 +70,7 @@ class Loader extends PluginBase {
 	protected static function checkPHP() : void {
 		if (version_compare(PHP_VERSION, self::MINIMUM_PHP_VERSION, '<')) {
 			Server::getInstance()->getLogger()->error("Error PHP version is " . PHP_VERSION . " but " . self::MINIMUM_PHP_VERSION . " is required.");
-			Server::getInstance() - shutdown();
+			Server::getInstance()->shutdown();
 		}
 	}
 }
