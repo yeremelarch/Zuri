@@ -34,6 +34,7 @@ namespace ReinfyTeam\Zuri;
 use pocketmine\utils\SingletonTrait;
 use ReinfyTeam\Zuri\check\CheckRegistry;
 use ReinfyTeam\Zuri\check\CheckWorker;
+use ReinfyTeam\Zuri\check\MetricsData;
 use ReinfyTeam\Zuri\config\ConfigManager;
 use ReinfyTeam\Zuri\config\ConfigPath;
 use ReinfyTeam\Zuri\config\ConstantValues;
