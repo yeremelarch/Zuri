@@ -33,6 +33,7 @@ namespace ReinfyTeam\Zuri\player;
 
 use JsonSerializable;
 use pocketmine\entity\Location;
+use pocketmine\math\Vector2;
 use pocketmine\math\Vector3;
 use pocketmine\player\Player;
 use pocketmine\world\Position;
